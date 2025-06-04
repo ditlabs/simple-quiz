@@ -60,6 +60,20 @@ public class Quiz {
         // Tampilkan soal pertama
         updateSoal(questionLabel, opt1, opt2, opt3);
 
-       
+        nextButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Cek jawaban
+                int selected = -1;
+                if (opt1.isSelected()) selected = 0;
+                else if (opt2.isSelected()) selected = 1;
+                else if (opt3.isSelected()) selected = 2;
+
+                if (selected == correctAnswers[index]) {
+                    score++;
+                }
+
+                index++;
+
+               
     }
 }
