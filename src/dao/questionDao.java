@@ -30,5 +30,30 @@ public class questionDao {
         }
     }
 
-    
+    // Mengambil soal dari database
+    public static List<Question> getQuestions() {
+        List<Question> questions = new ArrayList<>();
+        String query = "SELECT * FROM questions";
+
+        try (Connection conn = dbConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+
+            while (rs.next()) {
+                Question question = new Question(
+                        rs.getInt("id"),
+                        rs.getString("question_text"),
+                        rs.getString("option_a"),
+                        rs.getString("option_b"),
+                        rs.getString("option_c"),
+                        rs.getString("option_d"),
+                        rs.getString("correct_option")
+                );
+                questions.add(question);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return questions;
+    }
 }
