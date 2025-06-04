@@ -74,6 +74,10 @@ public class Quiz {
 
                 index++;
 
-               
+                // Lanjut ke soal berikutnya atau tampilkan hasil
+                if (index < questions.length) {
+                    group.clearSelection();
+                    updateSoal(questionLabel, opt1, opt2, opt3);
+                }
     }
 }
