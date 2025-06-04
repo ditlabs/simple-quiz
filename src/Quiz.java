@@ -93,4 +93,11 @@ public class Quiz {
         frame.setVisible(true);
     }
 
+    // Fungsi untuk menampilkan soal dan pilihan
+    static void updateSoal(JLabel label, JRadioButton o1, JRadioButton o2, JRadioButton o3) {
+        label.setText(questions[index]);
+        o1.setText(options[index][0]);
+        o2.setText(options[index][1]);
+        o3.setText(options[index][2]);
+    }
 }
