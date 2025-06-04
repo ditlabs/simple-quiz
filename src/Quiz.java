@@ -78,6 +78,19 @@ public class Quiz {
                 if (index < questions.length) {
                     group.clearSelection();
                     updateSoal(questionLabel, opt1, opt2, opt3);
+                } else {
+                    // Quiz selesai
+                    questionLabel.setText("Quiz selesai!");
+                    opt1.setVisible(false);
+                    opt2.setVisible(false);
+                    opt3.setVisible(false);
+                    nextButton.setEnabled(false);
+                    resultLabel.setText("Skor akhir kamu: " + score + " dari " + questions.length);
                 }
+            }
+        });
+
+        frame.setVisible(true);
     }
+
 }
