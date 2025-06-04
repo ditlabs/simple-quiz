@@ -57,6 +57,9 @@ public class Quiz {
         resultLabel.setBounds(30, 200, 400, 25);
         frame.add(resultLabel);
 
-        
+        // Tampilkan soal pertama
+        updateSoal(questionLabel, opt1, opt2, opt3);
+
+       
     }
 }
