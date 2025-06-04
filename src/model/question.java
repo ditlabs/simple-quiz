@@ -9,5 +9,16 @@ public class Question {
     private String optionD;
     private String correctOption;
 
+    // Constructor
+    public Question(int id, String questionText, String optionA, String optionB, String optionC, String optionD, String correctOption) {
+        this.id = id;
+        this.questionText = questionText;
+        this.optionA = optionA;
+        this.optionB = optionB;
+        this.optionC = optionC;
+        this.optionD = optionD;
+        this.correctOption = correctOption;
+    }
 
+    
 }
