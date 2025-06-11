@@ -195,4 +195,55 @@ public class mainMenu extends Application {
         return background;
     }
 
+    // --- (Sisa kode seperti handleLogin, handleRegister, displayQuestion, dll. tetap sama) ---
+
+    private void handleLogin(String username, String password) {
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Peringatan", "Username dan password tidak boleh kosong.");
+            return;
+        }
+        User user = userDao.login(username, password);
+        if (user != null) {
+            showQuizScreen();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username atau password salah.");
+        }
+    }
+
+    private void handleRegister(String username, String password, String confirmPassword) {
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Peringatan", "Semua kolom harus diisi.");
+            return;
+        }
+        if (!password.equals(confirmPassword)) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Password dan konfirmasi password tidak cocok.");
+            return;
+        }
+        boolean success = userDao.createUser(new User(username, password));
+        if (success) {
+            showAlert(Alert.AlertType.INFORMATION, "Sukses", "Akun berhasil dibuat! Silakan login.");
+            showLoginScreen();
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal membuat akun. Username mungkin sudah digunakan.");
+        }
+    }
+
+    private void handleNextQuestion() {
+        RadioButton selectedRadioButton = (RadioButton) optionsGroup.getSelectedToggle();
+        if (selectedRadioButton == null) {
+            showAlert(Alert.AlertType.WARNING, "Peringatan", "Silakan pilih jawaban terlebih dahulu!");
+            return;
+        }
+        if (getSelectedOption(selectedRadioButton).equalsIgnoreCase(questions.get(currentQuestionIndex).getCorrectOption())) {
+            score++;
+        }
+        progressBar.setProgress((double) (currentQuestionIndex + 1) / questions.size());
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.size()) {
+            displayQuestion(true);
+        } else {
+            showQuizComplete();
+        }
+    }
+
 }
