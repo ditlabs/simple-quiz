@@ -45,5 +45,6 @@ public class Main {
 
         // Tampilkan hasil akhir
         System.out.println("Kuis selesai! Skor akhir kamu: " + score + " dari " + questions.size());
+
     }
 }
