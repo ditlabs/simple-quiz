@@ -61,5 +61,34 @@ public class mainMenu extends Application {
         primaryStage.setScene(scene);
     }
 
-    
+    private void showQuizScreen() {
+        primaryStage.setTitle("Quiz");
+        StackPane quizRoot = new StackPane();
+        Scene quizScene = new Scene(quizRoot, 720, 720); // UKURAN BARU
+        quizScene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
+
+        ProgressIndicator loadingIndicator = new ProgressIndicator();
+        quizRoot.getChildren().add(loadingIndicator);
+        quizRoot.getStyleClass().add("root");
+
+        Task<List<Question>> loadQuestionsTask = createTaskToLoadQuestions();
+        loadQuestionsTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            questions = loadQuestionsTask.getValue();
+            quizRoot.getChildren().remove(loadingIndicator);
+            if (questions == null || questions.isEmpty()) {
+                showErrorState(quizRoot, "Tidak ada soal yang dapat dimuat.");
+            } else {
+                StackPane mainQuizLayout = createQuizLayout();
+                quizRoot.getChildren().add(mainQuizLayout);
+            }
+        }));
+        loadQuestionsTask.setOnFailed(e -> Platform.runLater(() -> {
+            quizRoot.getChildren().remove(loadingIndicator);
+            showErrorState(quizRoot, "Gagal terhubung ke database.");
+        }));
+
+        new Thread(loadQuestionsTask).start();
+        primaryStage.setScene(quizScene);
+    }
+
 }
