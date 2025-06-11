@@ -43,5 +43,23 @@ public class mainMenu extends Application {
         primaryStage.show();
     }
 
+    // --- MANAJEMEN SCENE ---
+
+    private void showLoginScreen() {
+        primaryStage.setTitle("Quiz App - Login");
+        StackPane layout = createLoginLayout();
+        Scene scene = new Scene(layout, 720, 720); // UKURAN BARU
+        scene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
+        primaryStage.setScene(scene);
+    }
+
+    private void showRegisterScreen() {
+        primaryStage.setTitle("Quiz App - Sign Up");
+        StackPane layout = createRegisterLayout();
+        Scene scene = new Scene(layout, 720, 720); // UKURAN BARU
+        scene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
+        primaryStage.setScene(scene);
+    }
+
     
 }
