@@ -246,4 +246,98 @@ public class mainMenu extends Application {
         }
     }
 
+    private void showQuizComplete() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+
+        Label title = new Label("Quiz Selesai!");
+        title.getStyleClass().add("title-text");
+
+        Label scoreLabel = new Label(score + "/" + questions.size());
+        scoreLabel.setStyle("-fx-font-size: 48px; -fx-font-weight: 700;");
+
+        Label subtitle = new Label("Anda menjawab " + score + " dari " + questions.size() + " pertanyaan dengan benar.");
+        subtitle.getStyleClass().add("subtitle-text");
+
+        Button playAgainButton = new Button("Mainkan Lagi");
+        playAgainButton.getStyleClass().add("primary-button");
+
+        card.getChildren().addAll(title, scoreLabel, subtitle, playAgainButton);
+
+        StackPane background = (StackPane) primaryStage.getScene().getRoot();
+        background.getChildren().add(card);
+
+        playAgainButton.setOnAction(e -> {
+            background.getChildren().remove(card);
+            resetQuiz();
+            displayQuestion(false);
+        });
+    }
+
+    private void resetQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+    }
+
+    private void displayQuestion(boolean useAnimation) {
+        if (useAnimation) {
+            FadeTransition ft = new FadeTransition(Duration.millis(350), questionArea);
+            ft.setFromValue(0.0);
+            ft.setToValue(1.0);
+            ft.play();
+        }
+        Question q = questions.get(currentQuestionIndex);
+        questionText.setText(q.getQuestionText());
+        ((RadioButton) optionsGroup.getToggles().get(0)).setText(q.getOptionA());
+        ((RadioButton) optionsGroup.getToggles().get(1)).setText(q.getOptionB());
+        ((RadioButton) optionsGroup.getToggles().get(2)).setText(q.getOptionC());
+        ((RadioButton) optionsGroup.getToggles().get(3)).setText(q.getOptionD());
+        optionsGroup.selectToggle(null);
+        updateProgressInfo();
+    }
+
+    private void updateProgressInfo() {
+        progressLabel.setText("Question " + (currentQuestionIndex + 1) + " of " + questions.size());
+        progressBar.setProgress((double) (currentQuestionIndex) / questions.size());
+    }
+
+    private String getSelectedOption(RadioButton selected) {
+        for (int i = 0; i < optionsGroup.getToggles().size(); i++) {
+            if (optionsGroup.getToggles().get(i) == selected) {
+                return String.valueOf((char) ('A' + i));
+            }
+        }
+        return "";
+    }
+
+    private RadioButton createStyledRadioButton() {
+        RadioButton rb = new RadioButton();
+        rb.setToggleGroup(optionsGroup);
+        rb.getStyleClass().add("radio-button");
+        rb.setMaxWidth(Double.MAX_VALUE);
+        return rb;
+    }
+
+    private Task<List<Question>> createTaskToLoadQuestions() {
+        return new Task<>() {
+            @Override
+            protected List<Question> call() {
+                return questionDao.getQuestions();
+            }
+        };
+    }
+
+    private void showErrorState(Pane container, String message) {
+        Label errorLabel = new Label(message);
+        container.getChildren().add(errorLabel);
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.initOwner(primaryStage);
+        alert.showAndWait();
+    }
 }
