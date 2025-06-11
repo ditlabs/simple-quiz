@@ -91,4 +91,108 @@ public class mainMenu extends Application {
         primaryStage.setScene(quizScene);
     }
 
+    // --- PEMBUATAN LAYOUT ---
+
+    private StackPane createLoginLayout() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+
+        Label title = new Label("Welcome Back!");
+        title.getStyleClass().add("title-text");
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Enter your username");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Enter your password");
+
+        Button loginButton = new Button("Log In");
+        loginButton.getStyleClass().add("primary-button");
+
+        Hyperlink registerLink = new Hyperlink("Don't have an account? Sign up");
+        registerLink.getStyleClass().add("hyperlink-style");
+
+        card.getChildren().addAll(title, usernameField, passwordField, loginButton, registerLink);
+
+        loginButton.setOnAction(e -> handleLogin(usernameField.getText(), passwordField.getText()));
+        registerLink.setOnAction(e -> showRegisterScreen());
+
+        StackPane background = new StackPane(card);
+        background.getStyleClass().add("root");
+        return background;
+    }
+
+    private StackPane createRegisterLayout() {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+
+        Label title = new Label("Create Account");
+        title.getStyleClass().add("title-text");
+
+        TextField usernameField = new TextField();
+        usernameField.setPromptText("Choose a username");
+
+        PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Create a password");
+
+        PasswordField confirmField = new PasswordField();
+        confirmField.setPromptText("Confirm your password");
+
+        Button registerButton = new Button("Sign Up");
+        registerButton.getStyleClass().add("primary-button");
+
+        Hyperlink loginLink = new Hyperlink("Already have an account? Log In");
+        loginLink.getStyleClass().add("hyperlink-style");
+
+        card.getChildren().addAll(title, usernameField, passwordField, confirmField, registerButton, loginLink);
+
+        registerButton.setOnAction(e -> handleRegister(usernameField.getText(), passwordField.getText(), confirmField.getText()));
+        loginLink.setOnAction(e -> showLoginScreen());
+
+        StackPane background = new StackPane(card);
+        background.getStyleClass().add("root");
+        return background;
+    }
+
+    private StackPane createQuizLayout() {
+        VBox card = new VBox();
+        card.getStyleClass().add("quiz-card");
+
+        // Header: Progress
+        progressLabel = new Label();
+        progressLabel.getStyleClass().add("progress-label");
+        progressBar = new ProgressBar(0);
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        VBox progressBox = new VBox(5, progressLabel, progressBar);
+        progressBox.setPadding(new Insets(0, 0, 20, 0));
+
+        // Content: Pertanyaan dan Pilihan
+        questionText = new Text();
+        questionText.getStyleClass().add("question-text");
+
+        optionsGroup = new ToggleGroup();
+        VBox optionsContainer = new VBox();
+        optionsContainer.getStyleClass().add("options-container");
+        for (int i = 0; i < 4; i++) {
+            optionsContainer.getChildren().add(createStyledRadioButton());
+        }
+
+        questionArea = new VBox(questionText, optionsContainer);
+        VBox.setVgrow(optionsContainer, Priority.ALWAYS);
+
+        // Footer: Tombol Submit
+        Button submitButton = new Button("Submit");
+        submitButton.getStyleClass().add("primary-button");
+        submitButton.setOnAction(e -> handleNextQuestion());
+
+        card.getChildren().addAll(progressBox, questionArea, submitButton);
+        VBox.setVgrow(questionArea, Priority.ALWAYS);
+
+        displayQuestion(false);
+
+        StackPane background = new StackPane(card);
+        background.getStyleClass().add("root");
+        return background;
+    }
+
 }
