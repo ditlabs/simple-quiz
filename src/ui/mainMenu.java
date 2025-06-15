@@ -4,6 +4,7 @@ import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,6 +16,13 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import model.Question;
 import model.User;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.ComboBox;
 
 import java.util.List;
 
@@ -33,6 +41,10 @@ public class mainMenu extends Application {
     private ToggleGroup optionsGroup;
     private VBox questionArea;
 
+    private void refreshQuestionTable(TableView<Question> table) {
+        table.setItems(FXCollections.observableArrayList(questionDao.getQuestions()));
+    }
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -41,6 +53,82 @@ public class mainMenu extends Application {
         showLoginScreen();
         primaryStage.setResizable(false);
         primaryStage.show();
+    }
+
+    private void showEditQuestionDialog(Question questionToEdit, TableView<Question> questionTable) {
+        // 1. Membuat Dialog
+        Dialog<Question> dialog = new Dialog<>();
+        dialog.setTitle("Edit Soal");
+        dialog.setHeaderText("Anda sedang mengedit soal dengan ID: " + questionToEdit.getId());
+
+        // 2. Membuat Tombol
+        ButtonType saveButtonType = new ButtonType("Simpan Perubahan", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // 3. Merancang Form dan MENGISI DATA LAMA
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextArea questionText = new TextArea(questionToEdit.getQuestionText()); // Isi dengan data lama
+        questionText.setWrapText(true);
+        TextField optionA = new TextField(questionToEdit.getOptionA()); // Isi dengan data lama
+        TextField optionB = new TextField(questionToEdit.getOptionB()); // Isi dengan data lama
+        TextField optionC = new TextField(questionToEdit.getOptionC()); // Isi dengan data lama
+        TextField optionD = new TextField(questionToEdit.getOptionD()); // Isi dengan data lama
+        ComboBox<String> correctOption = new ComboBox<>();
+        correctOption.getItems().addAll("A", "B", "C", "D");
+        correctOption.setValue(questionToEdit.getCorrectOption()); // Isi dengan data lama
+
+        // ... (Kode untuk menambahkan komponen ke grid sama persis seperti di add)
+        grid.add(new Label("Pertanyaan:"), 0, 0);
+        grid.add(questionText, 1, 0);
+        grid.add(new Label("Pilihan A:"), 0, 1);
+        grid.add(optionA, 1, 1);
+        grid.add(new Label("Pilihan B:"), 0, 2);
+        grid.add(optionB, 1, 2);
+        grid.add(new Label("Pilihan C:"), 0, 3);
+        grid.add(optionC, 1, 3);
+        grid.add(new Label("Pilihan D:"), 0, 4);
+        grid.add(optionD, 1, 4);
+        grid.add(new Label("Jawaban Benar:"), 0, 5);
+        grid.add(correctOption, 1, 5);
+        questionText.setPrefHeight(100);
+        GridPane.setVgrow(questionText, Priority.ALWAYS);
+        dialog.getDialogPane().setContent(grid);
+        Platform.runLater(questionText::requestFocus);
+
+        // 4. Logika untuk menyimpan perubahan
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                // Validasi (sama seperti add)
+                if (questionText.getText().trim().isEmpty() || /* ... validasi lainnya ... */ correctOption.getValue() == null) {
+                    showAlert(Alert.AlertType.WARNING, "Input Tidak Lengkap", "Harap isi semua kolom.");
+                    return null;
+                }
+                // Update field di objek questionToEdit
+                questionToEdit.setQuestionText(questionText.getText());
+                questionToEdit.setOptionA(optionA.getText());
+                questionToEdit.setOptionB(optionB.getText());
+                questionToEdit.setOptionC(optionC.getText());
+                questionToEdit.setOptionD(optionD.getText());
+                questionToEdit.setCorrectOption(correctOption.getValue());
+                return questionToEdit;
+            }
+            return null;
+        });
+
+        // 5. Tampilkan dialog dan proses hasilnya
+        dialog.showAndWait().ifPresent(editedQuestion -> {
+            boolean success = questionDao.updateQuestion(editedQuestion);
+            if (success) {
+                showAlert(Alert.AlertType.INFORMATION, "Sukses", "Soal berhasil diperbarui.");
+                refreshQuestionTable(questionTable);
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memperbarui soal di database.");
+            }
+        });
     }
 
     // --- MANAJEMEN SCENE ---
@@ -204,10 +292,232 @@ public class mainMenu extends Application {
         }
         User user = userDao.login(username, password);
         if (user != null) {
-            showQuizScreen();
+            // PENGECEKAN ROLE DI SINI
+            if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                // Jika user adalah ADMIN, tampilkan Admin Panel
+                showAlert(Alert.AlertType.INFORMATION, "Login Berhasil", "Selamat datang, Admin " + user.getUsername() + "!");
+                showAdminPanel(); // Metode baru yang akan kita buat
+            } else {
+                // Jika user biasa, tampilkan layar kuis seperti biasa
+                showQuizScreen();
+            }
         } else {
             showAlert(Alert.AlertType.ERROR, "Login Gagal", "Username atau password salah.");
         }
+    }
+
+    private void showAddQuestionDialog(TableView<Question> questionTable) {
+        // 1. Membuat Dialog (sama seperti sebelumnya)
+        Dialog<Question> dialog = new Dialog<>();
+        dialog.setTitle("Tambah Soal Baru");
+        dialog.setHeaderText("Silakan isi detail pertanyaan di bawah ini.");
+
+        // 2. Membuat Tombol di Dialog (sama seperti sebelumnya)
+        ButtonType saveButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        // 3. Merancang Form (sama seperti sebelumnya)
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        TextArea questionText = new TextArea();
+        questionText.setPromptText("Tulis teks pertanyaan di sini...");
+        questionText.setWrapText(true);
+        TextField optionA = new TextField();
+        optionA.setPromptText("Pilihan A");
+        TextField optionB = new TextField();
+        optionB.setPromptText("Pilihan B");
+        TextField optionC = new TextField();
+        optionC.setPromptText("Pilihan C");
+        TextField optionD = new TextField();
+        optionD.setPromptText("Pilihan D");
+        ComboBox<String> correctOption = new ComboBox<>();
+        correctOption.getItems().addAll("A", "B", "C", "D");
+        correctOption.setPromptText("Jawaban Benar");
+
+        grid.add(new Label("Pertanyaan:"), 0, 0);
+        grid.add(questionText, 1, 0);
+        grid.add(new Label("Pilihan A:"), 0, 1);
+        grid.add(optionA, 1, 1);
+        grid.add(new Label("Pilihan B:"), 0, 2);
+        grid.add(optionB, 1, 2);
+        grid.add(new Label("Pilihan C:"), 0, 3);
+        grid.add(optionC, 1, 3);
+        grid.add(new Label("Pilihan D:"), 0, 4);
+        grid.add(optionD, 1, 4);
+        grid.add(new Label("Jawaban Benar:"), 0, 5);
+        grid.add(correctOption, 1, 5);
+        questionText.setPrefHeight(100);
+        GridPane.setVgrow(questionText, Priority.ALWAYS);
+        dialog.getDialogPane().setContent(grid);
+        Platform.runLater(questionText::requestFocus);
+
+        // --- BAGIAN BARU: LOGIKA PENYIMPANAN ---
+        // 4. Konversi hasil dialog menjadi objek Question saat tombol Simpan ditekan
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                // Validasi: Pastikan semua field terisi
+                if (questionText.getText().trim().isEmpty() || optionA.getText().trim().isEmpty() ||
+                        optionB.getText().trim().isEmpty() || optionC.getText().trim().isEmpty() ||
+                        optionD.getText().trim().isEmpty() || correctOption.getValue() == null) {
+
+                    showAlert(Alert.AlertType.WARNING, "Input Tidak Lengkap", "Harap isi semua kolom sebelum menyimpan.");
+                    return null; // Kembalikan null agar dialog tidak tertutup
+                }
+                // Buat objek Question baru dari input form
+                return new Question(
+                        questionText.getText(),
+                        optionA.getText(),
+                        optionB.getText(),
+                        optionC.getText(),
+                        optionD.getText(),
+                        correctOption.getValue()
+                );
+            }
+            return null; // Jika tombol Batal atau lainnya ditekan
+        });
+
+        // 5. Tampilkan dialog dan proses hasilnya
+        dialog.showAndWait().ifPresent(newQuestion -> {
+            // Jika dialog menghasilkan objek Question (artinya valid dan disimpan)
+            boolean success = questionDao.addQuestion(newQuestion);
+            if (success) {
+                showAlert(Alert.AlertType.INFORMATION, "Sukses", "Soal baru berhasil ditambahkan.");
+                // Refresh tabel untuk menampilkan data baru
+                refreshQuestionTable(questionTable);
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal menyimpan soal ke database.");
+            }
+        });
+    }
+
+    private void showAdminPanel() {
+        primaryStage.setTitle("Admin Dashboard - Manajemen Soal");
+
+        // --- Layout Utama ---
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.getStyleClass().add("admin-root");
+
+        // --- Sidebar (Menu di Kiri) ---
+        VBox sidebar = new VBox();
+        sidebar.getStyleClass().add("sidebar");
+
+        // ... (Kode untuk membuat tombol-tombol sidebar tetap sama) ...
+        Button manageQuestionsButton = new Button("Manajemen Soal");
+        manageQuestionsButton.getStyleClass().add("sidebar-button");
+        manageQuestionsButton.pseudoClassStateChanged(PseudoClass.getPseudoClass("selected"), true);
+        Button manageUsersButton = new Button("Manajemen Pengguna");
+        manageUsersButton.getStyleClass().add("sidebar-button");
+        Button statisticsButton = new Button("Statistik Kuis");
+        statisticsButton.getStyleClass().add("sidebar-button");
+        Button logoutButton = new Button("Logout");
+        logoutButton.getStyleClass().add("sidebar-button");
+        logoutButton.setOnAction(e -> showLoginScreen());
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        sidebar.getChildren().addAll(manageQuestionsButton, manageUsersButton, statisticsButton, spacer, logoutButton);
+
+        // Menempatkan sidebar di KIRI dan memberikan MARGIN
+        mainLayout.setLeft(sidebar);
+        BorderPane.setMargin(sidebar, new Insets(20, 0, 20, 20));
+
+        // --- Area Konten (di Tengah) ---
+        VBox contentCard = new VBox(20);
+        contentCard.getStyleClass().add("content-card");
+        contentCard.setPadding(new Insets(30));
+
+        // ... (Kode untuk membuat title, table, dan tombol aksi tetap sama) ...
+        Label titleLabel = new Label("Manajemen Soal Kuis");
+        titleLabel.getStyleClass().add("title-text");
+        TableView<Question> questionTable = new TableView<>();
+        TableColumn<Question, Integer> idCol = new TableColumn<>("ID");
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        TableColumn<Question, String> textCol = new TableColumn<>("Teks Pertanyaan");
+        textCol.setCellValueFactory(new PropertyValueFactory<>("questionText"));
+        textCol.setPrefWidth(350);
+        TableColumn<Question, String> correctCol = new TableColumn<>("Jawaban Benar");
+        correctCol.setCellValueFactory(new PropertyValueFactory<>("correctOption"));
+        questionTable.getColumns().addAll(idCol, textCol, correctCol);
+        ObservableList<Question> questionList = FXCollections.observableArrayList(questionDao.getQuestions());
+        questionTable.setItems(questionList);
+
+        //Tambah Soal
+        Button addButton = new Button("Tambah Soal");
+        addButton.getStyleClass().addAll("action-button", "add-button");
+        addButton.setOnAction(e -> showAddQuestionDialog(questionTable));
+
+        //Edit Soal
+        Button editButton = new Button("Edit Soal");
+        editButton.getStyleClass().addAll("action-button", "edit-button");
+
+        //Logika untuk mengedit soal
+        editButton.setOnAction(e -> {
+            // Dapatkan soal yang dipilih, sama seperti delete
+            Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
+
+            if (selectedQuestion == null) {
+                showAlert(Alert.AlertType.WARNING, "Tidak Ada Pilihan", "Silakan pilih soal yang ingin diedit terlebih dahulu.");
+                return;
+            }
+
+            // Panggil dialog edit dengan membawa data soal yang dipilih
+            showEditQuestionDialog(selectedQuestion, questionTable);
+        });
+
+        //Hapus Soal
+        Button deleteButton = new Button("Hapus Soal");
+        deleteButton.getStyleClass().addAll("action-button", "delete-button");
+
+        // Logika untuk menghapus soal
+        deleteButton.setOnAction(e -> {
+            // 1. Dapatkan soal yang dipilih dari tabel
+            Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
+
+            // 2. Periksa apakah ada soal yang dipilih
+            if (selectedQuestion == null) {
+                showAlert(Alert.AlertType.WARNING, "Tidak Ada Pilihan", "Silakan pilih soal yang ingin dihapus terlebih dahulu.");
+                return; // Hentikan proses jika tidak ada yang dipilih
+            }
+
+            // 3. Tampilkan dialog konfirmasi
+            Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            confirmationAlert.setTitle("Konfirmasi Hapus");
+            confirmationAlert.setHeaderText("Anda akan menghapus soal berikut:");
+            confirmationAlert.setContentText("ID: " + selectedQuestion.getId() + "\nSoal: " + selectedQuestion.getQuestionText());
+
+            // Tampilkan dialog dan tunggu respons dari user
+            confirmationAlert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    // 4. Jika user menekan OK, hapus soal dari database
+                    boolean success = questionDao.deleteQuestion(selectedQuestion.getId());
+
+                    if (success) {
+                        showAlert(Alert.AlertType.INFORMATION, "Sukses", "Soal berhasil dihapus.");
+                        // 5. Refresh tabel untuk menampilkan perubahan
+                        refreshQuestionTable(questionTable);
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal menghapus soal dari database.");
+                    }
+                }
+            });
+        });
+
+        HBox buttonBox = new HBox(15, addButton, editButton, deleteButton);
+        buttonBox.setAlignment(Pos.CENTER_LEFT);
+
+        contentCard.getChildren().addAll(titleLabel, questionTable, buttonBox);
+
+        // ----> INI BAGIAN PENTING YANG HILANG <----
+        // Menempatkan 'kartu' konten di TENGAH dan memberikan MARGIN
+        mainLayout.setCenter(contentCard);
+        BorderPane.setMargin(contentCard, new Insets(20));
+
+        // --- Scene ---
+        Scene adminScene = new Scene(mainLayout, 950, 720);
+        adminScene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
+        primaryStage.setScene(adminScene);
     }
 
     private void handleRegister(String username, String password, String confirmPassword) {
