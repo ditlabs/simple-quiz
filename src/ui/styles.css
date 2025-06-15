@@ -124,3 +124,86 @@
 .progress-bar .track { -fx-background-color: #e6e9f0; }
 .progress-bar .bar { -fx-padding: 4px; -fx-background-color: #4a6ee0; }
 .progress-label { -fx-font-size: 14px; -fx-text-fill: #5a6a8a; }
+
+/* ==========================================================================
+   STYLESHEET - ADMIN DASHBOARD
+   ========================================================================== */
+
+.admin-root {
+    -fx-background-color: #f4f6f9; /* Latar belakang abu-abu muda */
+}
+
+/* --- Sidebar Menu --- */
+.sidebar {
+    -fx-background-color: #1e2a4c;
+    -fx-padding: 20px 0 20px 0;
+    -fx-spacing: 10px;
+    -fx-alignment: top-center;
+    -fx-background-radius: 12px; /* <-- TAMBAHKAN INI */
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-family: 'Poppins';
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-padding: 12px 20px;
+    -fx-background-radius: 0;
+    -fx-alignment: center-left;
+    -fx-pref-width: 200px; /* Lebar tombol menu */
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Style untuk tombol yang sedang aktif/dipilih */
+.sidebar-button:selected {
+    -fx-background-color: #4a6ee0; /* Warna biru primer Anda */
+     -fx-font-weight: 700;
+}
+
+/* --- Content Area --- */
+.content-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 30px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 15, 0, 0, 3);
+}
+
+.action-button {
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 20px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 10, 0, 0, 2);
+}
+.action-button:hover {
+    -fx-translate-y: -1px;
+}
+
+/* Warna spesifik untuk setiap tombol */
+.add-button {
+    -fx-background-color: #28a745; /* Hijau */
+}
+.add-button:hover {
+    -fx-background-color: #218838;
+}
+
+.edit-button {
+    -fx-background-color: #007bff; /* Biru */
+}
+.edit-button:hover {
+    -fx-background-color: #0069d9;
+}
+
+.delete-button {
+    -fx-background-color: #dc3545; /* Merah */
+}
+.delete-button:hover {
+    -fx-background-color: #c82333;
+}
