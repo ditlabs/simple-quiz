@@ -9,18 +9,15 @@ import java.sql.SQLException;
 
 public class UserDao {
 
-    /**
-     * Menyimpan user baru ke database.
-     * @param user Objek User yang akan disimpan.
-     * @return true jika berhasil, false jika gagal.
-     */
     public boolean createUser(User user) {
-        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        // PERBARUI SQL: Tambahkan kolom 'role'
+        String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getRole()); // Set role, defaultnya 'USER'
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -31,14 +28,9 @@ public class UserDao {
         }
     }
 
-    /**
-     * Memeriksa kredensial login.
-     * @param username Username yang dimasukkan.
-     * @param password Password yang dimasukkan.
-     * @return Objek User jika login berhasil, null jika gagal.
-     */
     public User login(String username, String password) {
-        String sql = "SELECT id_users, username, password FROM users WHERE username = ? AND password = ?";
+        // PERBARUI SQL: Ambil juga kolom 'role'
+        String sql = "SELECT id_users, username, password, role FROM users WHERE username = ? AND password = ?";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -47,19 +39,18 @@ public class UserDao {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // Jika data ditemukan, buat objek User dan kembalikan
+                    // PERBARUI INSTANSIASI USER: Sertakan role
                     return new User(
-                            // PERUBAHAN DI SINI: Mengambil kolom "id_users" sesuai nama di database Anda
                             rs.getInt("id_users"),
                             rs.getString("username"),
-                            rs.getString("password")
+                            rs.getString("password"),
+                            rs.getString("role") // Ambil role dari database
                     );
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // Jika tidak ada data yang cocok atau terjadi error, kembalikan null
         return null;
     }
 }
