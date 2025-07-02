@@ -15,4 +15,9 @@
       <entry name="?*.css" />
     </wildcardResourcePatterns>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="tugas besar" options="--add-exports java.desktop/sun.awt=ALL-UNNAMED" />
+    </option>
+  </component>
 </project>
