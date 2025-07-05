@@ -207,3 +207,22 @@
 .delete-button:hover {
     -fx-background-color: #c82333;
 }
+
+.logout-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: -fx-secondary-color;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-border-color: -fx-border-color;
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 8px;
+    -fx-padding: 8.5px 20px;
+    -fx-cursor: hand;
+    -fx-alignment: center; /* Ubah agar ikon dan teks terpusat */
+}
+
+.logout-button:hover {
+    -fx-background-color: #fce8e8;
+    -fx-text-fill: -fx-danger-color;
+    -fx-border-color: #f7b2b2;
+}
