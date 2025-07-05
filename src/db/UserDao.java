@@ -6,9 +6,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDao {
 
+    // ... (metode createUser dan login tidak berubah) ...
     public boolean createUser(User user) {
         // PERBARUI SQL: Tambahkan kolom 'role'
         String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
@@ -52,5 +56,53 @@ public class UserDao {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // BARU: Mengambil semua pengguna untuk panel admin
+    public List<User> getAllUsers() {
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT id_users, username, password, role FROM users";
+        try (Connection conn = dbConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getInt("id_users"),
+                        rs.getString("username"),
+                        rs.getString("password"),
+                        rs.getString("role")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
+
+    // BARU: Memperbarui peran pengguna
+    public boolean updateUserRole(int userId, String newRole) {
+        String sql = "UPDATE users SET role = ? WHERE id_users = ?";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newRole);
+            pstmt.setInt(2, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // BARU: Menghapus pengguna
+    public boolean deleteUser(int userId) {
+        String sql = "DELETE FROM users WHERE id_users = ?";
+        try (Connection conn = dbConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
