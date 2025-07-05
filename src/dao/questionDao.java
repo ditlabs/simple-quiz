@@ -2,14 +2,13 @@ package dao;
 
 import db.dbConnection;
 import model.Question;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class questionDao {
 
-    // CREATE: Menyertakan image_path
+    // ... (metode addQuestion, updateQuestion, deleteQuestion tidak berubah) ...
     public static boolean addQuestion(Question question) {
         String query = "INSERT INTO questions (question_text, image_path, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
@@ -28,10 +27,11 @@ public class questionDao {
         }
     }
 
-    // READ: Menyertakan image_path
+    // READ: Diubah untuk mengambil soal secara acak
     public static List<Question> getQuestions() {
         List<Question> questions = new ArrayList<>();
-        String query = "SELECT * FROM questions ORDER BY id";
+        // Diubah: Menambahkan ORDER BY RAND() untuk mengacak urutan soal
+        String query = "SELECT * FROM questions ORDER BY RAND()";
         try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -39,7 +39,7 @@ public class questionDao {
                 questions.add(new Question(
                         rs.getInt("id"),
                         rs.getString("question_text"),
-                        rs.getString("image_path"), // Ambil dari DB
+                        rs.getString("image_path"),
                         rs.getString("option_a"),
                         rs.getString("option_b"),
                         rs.getString("option_c"),
@@ -52,8 +52,6 @@ public class questionDao {
         }
         return questions;
     }
-
-    // UPDATE: Menyertakan image_path
     public static boolean updateQuestion(Question question) {
         String query = "UPDATE questions SET question_text = ?, image_path = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, correct_option = ? WHERE id = ?";
         try (Connection conn = dbConnection.getConnection();
