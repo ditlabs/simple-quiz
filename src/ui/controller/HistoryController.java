@@ -15,6 +15,10 @@ public class HistoryController {
     private final resultDao resultDao = new resultDao();
     private final HistoryView view;
 
+    /**
+     * Konstruktor untuk HistoryController.
+     * @param stage Stage utama aplikasi.
+     */
     public HistoryController(Stage stage) {
         this.stage = stage;
         this.view = new HistoryView();
@@ -23,6 +27,7 @@ public class HistoryController {
         setupEventHandlers();
     }
 
+    // Menampilkan tampilan riwayat kuis
     public void show() {
         // Bungkus view dalam StackPane agar konsisten dengan root style
         StackPane root = new StackPane(view);
@@ -34,11 +39,13 @@ public class HistoryController {
         stage.setTitle("Riwayat Kuis");
     }
 
+    // Memuat data riwayat kuis dari database
     private void loadHistoryData() {
         int userId = SessionManager.getInstance().getLoggedInUser().getId();
         view.getHistoryTable().setItems(FXCollections.observableArrayList(resultDao.getHistoryForUser(userId)));
     }
 
+    // Mengatur event handler untuk tombol dan link pada tampilan
     private void setupEventHandlers() {
         view.getBackButton().setOnAction(e -> {
             UserDashboardController dashboardController = new UserDashboardController(stage);

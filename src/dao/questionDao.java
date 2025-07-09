@@ -8,7 +8,7 @@ import java.util.List;
 
 public class questionDao {
 
-    // ... (metode addQuestion, updateQuestion, deleteQuestion tidak berubah) ...
+    // Fungsi untuk menambahkan soal baru
     public static boolean addQuestion(Question question) {
         String query = "INSERT INTO questions (question_text, image_path, option_a, option_b, option_c, option_d, correct_option) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
@@ -27,10 +27,10 @@ public class questionDao {
         }
     }
 
-    // READ: Diubah untuk mengambil soal secara acak
+    // Untuk mengambil soal secara acak
     public static List<Question> getQuestions() {
         List<Question> questions = new ArrayList<>();
-        // Diubah: Menambahkan ORDER BY RAND() untuk mengacak urutan soal
+        // Menambahkan ORDER BY RAND() untuk mengacak urutan soal
         String query = "SELECT * FROM questions ORDER BY RAND()";
         try (Connection conn = dbConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -52,6 +52,8 @@ public class questionDao {
         }
         return questions;
     }
+
+    // Fungsi untuk mengambil soal berdasarkan ID
     public static boolean updateQuestion(Question question) {
         String query = "UPDATE questions SET question_text = ?, image_path = ?, option_a = ?, option_b = ?, option_c = ?, option_d = ?, correct_option = ? WHERE id = ?";
         try (Connection conn = dbConnection.getConnection();
@@ -71,7 +73,7 @@ public class questionDao {
         }
     }
 
-    // DELETE: Tidak perlu diubah
+    // Delete
     public static boolean deleteQuestion(int id) {
         String query = "DELETE FROM questions WHERE id = ?";
         try (Connection conn = dbConnection.getConnection();

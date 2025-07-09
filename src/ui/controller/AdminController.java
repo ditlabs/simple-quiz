@@ -1,4 +1,3 @@
-// Lokasi File: src/ui/controller/AdminController.java
 package ui.controller;
 
 import dao.UserDao;
@@ -33,6 +32,7 @@ public class AdminController {
     private final resultDao resultDao = new resultDao();
     private final questionDao questionDao = new questionDao();
 
+    // Constructor
     public AdminController(Stage stage) {
         this.stage = stage;
         this.view = new AdminView();
@@ -44,6 +44,7 @@ public class AdminController {
         refreshQuestionTable();
     }
 
+    // Metode untuk menampilkan dashboard admin
     public void show() {
         Scene adminScene = new Scene(view, 1200, 720);
         adminScene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
@@ -51,6 +52,7 @@ public class AdminController {
         stage.setTitle("Admin Dashboard");
     }
 
+    // --- Setup Event Handlers ---
     private void setupEventHandlers() {
         // Navigasi Sidebar
         view.getManageQuestionsButton().setOnAction(e -> {
@@ -115,31 +117,35 @@ public class AdminController {
     }
 
     // --- Dialog dan Handler ---
-
     private void showAddQuestionDialog() {
         Dialog<Question> dialog = new Dialog<>();
         dialog.setTitle("Tambah Soal Baru");
         dialog.setHeaderText("Silakan isi detail pertanyaan di bawah ini.");
         dialog.initOwner(stage);
 
+        // Tombol untuk menyimpan soal baru
         ButtonType saveButtonType = new ButtonType("Simpan", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
+        // Layout untuk dialog
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
+        // Komponen input untuk pertanyaan
         TextArea questionText = new TextArea();
         questionText.setPromptText("Tulis teks pertanyaan di sini...");
         questionText.setWrapText(true);
 
+        // Komponen input untuk gambar (opsional)
         TextField imagePathField = new TextField();
         imagePathField.setPromptText("Opsional: C:\\path\\ke\\gambar.jpg");
         Button browseButton = new Button("Cari Gambar...");
         HBox imageBox = new HBox(5, imagePathField, browseButton);
         HBox.setHgrow(imagePathField, Priority.ALWAYS);
 
+        // Event handler untuk tombol browse
         browseButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Pilih Gambar Soal");
@@ -150,6 +156,7 @@ public class AdminController {
             }
         });
 
+        // Komponen input untuk pilihan jawaban
         TextField optionA = new TextField();
         optionA.setPromptText("Pilihan A");
         TextField optionB = new TextField();
@@ -162,6 +169,7 @@ public class AdminController {
         correctOption.getItems().addAll("A", "B", "C", "D");
         correctOption.setPromptText("Jawaban Benar");
 
+        // Tambahkan semua komponen ke grid
         grid.add(new Label("Pertanyaan:"), 0, 0);
         grid.add(questionText, 1, 0);
         grid.add(new Label("Path Gambar (Opsional):"), 0, 1);
@@ -177,10 +185,12 @@ public class AdminController {
         grid.add(new Label("Jawaban Benar:"), 0, 6);
         grid.add(correctOption, 1, 6);
 
+        // Atur tinggi area teks pertanyaan
         questionText.setPrefHeight(100);
         dialog.getDialogPane().setContent(grid);
         Platform.runLater(questionText::requestFocus);
 
+        // Konversi hasil dialog
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 if (questionText.getText().trim().isEmpty() || optionA.getText().trim().isEmpty() ||
@@ -189,6 +199,7 @@ public class AdminController {
                     AlertHelper.showAlert(Alert.AlertType.WARNING, stage, "Input Tidak Lengkap", "Harap isi semua kolom wajib sebelum menyimpan.");
                     return null;
                 }
+                // Buat objek Question baru dengan data dari dialog
                 return new Question(
                         questionText.getText(),
                         imagePathField.getText(),
@@ -202,6 +213,7 @@ public class AdminController {
             return null;
         });
 
+        // Tampilkan dialog dan tunggu hasilnya
         dialog.showAndWait().ifPresent(newQuestion -> {
             if (questionDao.addQuestion(newQuestion)) {
                 AlertHelper.showAlert(Alert.AlertType.INFORMATION, stage, "Sukses", "Soal baru berhasil ditambahkan.");
@@ -212,28 +224,34 @@ public class AdminController {
         });
     }
 
+    // Metode untuk menampilkan dialog edit soal
     private void showEditQuestionDialog(Question questionToEdit) {
         Dialog<Question> dialog = new Dialog<>();
         dialog.setTitle("Edit Soal");
         dialog.setHeaderText("Anda sedang mengedit soal dengan ID: " + questionToEdit.getId());
         dialog.initOwner(stage);
 
+        // Tombol untuk menyimpan perubahan
         ButtonType saveButtonType = new ButtonType("Simpan Perubahan", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
 
+        // Layout untuk dialog
         GridPane grid = new GridPane();
         grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
+        // Komponen input untuk pertanyaan
         TextArea questionText = new TextArea(questionToEdit.getQuestionText());
         questionText.setWrapText(true);
 
+        // Komponen input untuk gambar (opsional)
         TextField imagePathField = new TextField(questionToEdit.getImagePath());
         Button browseButton = new Button("Cari Gambar...");
         HBox imageBox = new HBox(5, imagePathField, browseButton);
         HBox.setHgrow(imagePathField, Priority.ALWAYS);
 
+        // Event handler untuk tombol browse
         browseButton.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Pilih Gambar Soal");
@@ -244,6 +262,7 @@ public class AdminController {
             }
         });
 
+        // Komponen input untuk pilihan jawaban
         TextField optionA = new TextField(questionToEdit.getOptionA());
         TextField optionB = new TextField(questionToEdit.getOptionB());
         TextField optionC = new TextField(questionToEdit.getOptionC());
@@ -252,6 +271,7 @@ public class AdminController {
         correctOption.getItems().addAll("A", "B", "C", "D");
         correctOption.setValue(questionToEdit.getCorrectOption());
 
+        // Tambahkan semua komponen ke grid
         grid.add(new Label("Pertanyaan:"), 0, 0);
         grid.add(questionText, 1, 0);
         grid.add(new Label("Path Gambar:"), 0, 1);
@@ -270,6 +290,7 @@ public class AdminController {
         dialog.getDialogPane().setContent(grid);
         Platform.runLater(questionText::requestFocus);
 
+        // Konversi hasil dialog
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 questionToEdit.setQuestionText(questionText.getText());
@@ -284,6 +305,7 @@ public class AdminController {
             return null;
         });
 
+        // Tampilkan dialog dan tunggu hasilnya
         dialog.showAndWait().ifPresent(editedQuestion -> {
             if (questionDao.updateQuestion(editedQuestion)) {
                 AlertHelper.showAlert(Alert.AlertType.INFORMATION, stage, "Sukses", "Soal berhasil diperbarui.");
@@ -294,6 +316,7 @@ public class AdminController {
         });
     }
 
+    // Metode untuk menghapus soal yang dipilih
     private void handleDeleteQuestion() {
         Question selectedQuestion = view.getQuestionTable().getSelectionModel().getSelectedItem();
         if (selectedQuestion == null) {

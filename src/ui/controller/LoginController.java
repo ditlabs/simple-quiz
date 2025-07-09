@@ -6,7 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 import model.User;
 import ui.util.AlertHelper;
-import ui.view.LoginView; // Import kelas view yang baru
+import ui.view.LoginView;
 import util.SessionManager;
 
 public class LoginController {
@@ -21,6 +21,7 @@ public class LoginController {
         setupEventHandlers(); // Panggil method untuk setup event handler
     }
 
+    // Method untuk menampilkan view login
     public void show() {
         Scene scene = new Scene(view, 720, 720);
         scene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
@@ -28,6 +29,7 @@ public class LoginController {
         stage.setTitle("Quiz App - Login");
     }
 
+    // Method untuk setup event handlers
     private void setupEventHandlers() {
         // Event handler untuk tombol login
         view.getLoginButton().setOnAction(e -> handleLogin());
@@ -39,30 +41,36 @@ public class LoginController {
         });
     }
 
+    // Method untuk menangani proses login
     private void handleLogin() {
         String username = view.getUsernameField().getText();
         String password = view.getPasswordField().getText();
 
+        // Validasi input
         if (username.isEmpty() || password.isEmpty()) {
             AlertHelper.showAlert(Alert.AlertType.WARNING, stage, "Peringatan", "Username dan password tidak boleh kosong.");
             return;
         }
 
+        // Panggil DAO untuk melakukan login
         User user = userDao.login(username, password);
 
+        // Jika login berhasil, simpan user di SessionManager dan tampilkan dashboard sesuai role
         if (user != null) {
             SessionManager.getInstance().setLoggedInUser(user);
 
+            // Tampilkan pesan sukses
             if ("ADMIN".equalsIgnoreCase(user.getRole())) {
                 AlertHelper.showAlert(Alert.AlertType.INFORMATION, stage, "Login Berhasil", "Selamat datang, Admin " + user.getUsername() + "!");
-                // AdminController akan direfaktor selanjutnya
+                // Jika admin, tampilkan dashboard admin
                 AdminController adminController = new AdminController(stage);
                 adminController.show();
             } else {
-                // UserDashboardController akan direfaktor selanjutnya
-                UserDashboardController dashboardController = new UserDashboardController(stage);
-                dashboardController.show();
+                // Jika bukan admin, tampilkan dashboard pengguna
+                UserDashboardController userDashboardController = new UserDashboardController(stage);
+                userDashboardController.show();
             }
+            // Hapus view login dari stage
         } else {
             AlertHelper.showAlert(Alert.AlertType.ERROR, stage, "Login Gagal", "Username atau password salah.");
         }

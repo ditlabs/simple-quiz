@@ -4,7 +4,7 @@ public class User {
     private int id;
     private String username;
     private String password;
-    private String role; // <-- TAMBAHKAN INI
+    private String role;
 
     // Constructor untuk membuat user baru (dari registrasi)
     public User(String username, String password) {
@@ -13,13 +13,12 @@ public class User {
         this.role = "USER"; // Default role untuk user baru
     }
 
-    // Constructor untuk mengambil user dari DB
-    // PERBARUI CONSTRUCTOR INI
+    // Constructor untuk mengambil data user dari database
     public User(int id, String username, String password, String role) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.role = role; // <-- TAMBAHKAN INI
+        this.role = role;
     }
 
     // --- Getter dan Setter ---

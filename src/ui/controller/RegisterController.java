@@ -14,12 +14,14 @@ public class RegisterController {
     private final UserDao userDao = new UserDao();
     private final RegisterView view;
 
+    // Constructor untuk RegisterController
     public RegisterController(Stage stage) {
         this.stage = stage;
         this.view = new RegisterView();
         setupEventHandlers();
     }
 
+    // Method untuk menampilkan view registrasi
     public void show() {
         Scene scene = new Scene(view, 720, 720);
         scene.getStylesheets().add(getClass().getResource("/ui/styles.css").toExternalForm());
@@ -27,6 +29,7 @@ public class RegisterController {
         stage.setTitle("Quiz App - Sign Up");
     }
 
+    // Method untuk setup event handlers
     private void setupEventHandlers() {
         view.getRegisterButton().setOnAction(e -> handleRegister());
         view.getLoginLink().setOnAction(e -> {
@@ -35,6 +38,7 @@ public class RegisterController {
         });
     }
 
+    // Method untuk menangani proses registrasi
     private void handleRegister() {
         String username = view.getUsernameField().getText();
         String password = view.getPasswordField().getText();

@@ -1,4 +1,3 @@
-// src/ui/controller/QuizController.java
 package ui.controller;
 
 import dao.questionDao;

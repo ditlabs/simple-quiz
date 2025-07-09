@@ -22,7 +22,7 @@ public class Question {
         this.correctOption = correctOption;
     }
 
-    // Constructor sederhana: untuk membuat soal baru dari form
+    // Constructor untuk membuat soal baru dari form
     public Question(String questionText, String imagePath, String optionA, String optionB, String optionC, String optionD, String correctOption) {
         this.questionText = questionText;
         this.imagePath = imagePath;
@@ -33,8 +33,7 @@ public class Question {
         this.correctOption = correctOption;
     }
 
-    // --- Getter dan Setter ---
-
+    // Membaca data soal
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

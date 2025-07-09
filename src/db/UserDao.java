@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDao {
-
-    // ... (metode createUser dan login tidak berubah) ...
     public boolean createUser(User user) {
-        // PERBARUI SQL: Tambahkan kolom 'role'
+        // Fungsi untuk membuat pengguna baru
         String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -33,7 +31,7 @@ public class UserDao {
     }
 
     public User login(String username, String password) {
-        // PERBARUI SQL: Ambil juga kolom 'role'
+        // Mengambil pengguna berdasarkan username dan password
         String sql = "SELECT id_users, username, password, role FROM users WHERE username = ? AND password = ?";
         try (Connection conn = dbConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -58,7 +56,7 @@ public class UserDao {
         return null;
     }
 
-    // BARU: Mengambil semua pengguna untuk panel admin
+    // Mengambil semua pengguna untuk panel admin
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT id_users, username, password, role FROM users";
@@ -79,7 +77,7 @@ public class UserDao {
         return users;
     }
 
-    // BARU: Memperbarui peran pengguna
+    // Memperbarui peran pengguna
     public boolean updateUserRole(int userId, String newRole) {
         String sql = "UPDATE users SET role = ? WHERE id_users = ?";
         try (Connection conn = dbConnection.getConnection();
@@ -93,7 +91,7 @@ public class UserDao {
         }
     }
 
-    // BARU: Menghapus pengguna
+    // Menghapus pengguna
     public boolean deleteUser(int userId) {
         String sql = "DELETE FROM users WHERE id_users = ?";
         try (Connection conn = dbConnection.getConnection();

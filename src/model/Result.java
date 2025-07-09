@@ -18,7 +18,7 @@ public class Result {
         this.quizDate = quizDate;
     }
 
-    // Getters
+    // Membaca hasil kuis baru
     public int getResultId() { return resultId; }
     public int getUserId() { return userId; }
     public String getUsername() { return username; }
