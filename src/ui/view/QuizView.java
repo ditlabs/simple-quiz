@@ -15,7 +15,6 @@ import java.io.File;
 
 public class QuizView extends StackPane {
 
-    // ... (semua deklarasi variabel tetap sama) ...
     private final Label progressLabel;
     private final ProgressBar progressBar;
     private final Text questionText;
@@ -25,15 +24,13 @@ public class QuizView extends StackPane {
     private final Button submitButton;
     private final VBox questionArea;
     private final ProgressIndicator loadingIndicator;
-    private VBox quizCard;
-    private VBox completionCard;
-
+    private VBox quizCard; // Dibuat saat dibutuhkan
 
     public QuizView() {
-        // ... (isi constructor tetap sama) ...
         this.getStyleClass().add("root");
+
+        // Inisialisasi semua komponen yang akan digunakan
         loadingIndicator = new ProgressIndicator();
-        quizCard = new VBox();
         progressLabel = new Label();
         progressBar = new ProgressBar(0);
         questionText = new Text();
@@ -42,18 +39,56 @@ public class QuizView extends StackPane {
         optionsContainer = new VBox();
         submitButton = new Button("Submit");
         questionArea = new VBox(10);
-        buildQuizUI();
+
+        // Tampilkan loading indicator secara default
         this.getChildren().add(loadingIndicator);
     }
 
-    public void buildQuizUI() {
-        // ... (isi metode ini tetap sama) ...
+    /**
+     * Metode ini membangun panel kuis dan menampilkannya di layar.
+     * Dipanggil oleh Controller setelah data soal siap.
+     */
+    public void buildAndShowQuizUI() {
+        // 1. Buat VBox utama untuk kartu kuis
+        quizCard = new VBox();
+        quizCard.getStyleClass().add("quiz-card");
+
+        // 2. Siapkan bagian progress bar
+        progressLabel.getStyleClass().add("progress-label");
+        progressBar.setMaxWidth(Double.MAX_VALUE);
+        VBox progressBox = new VBox(5, progressLabel, progressBar);
+        progressBox.setPadding(new Insets(0, 0, 20, 0));
+
+        // 3. Siapkan bagian teks pertanyaan dan gambar
+        questionText.getStyleClass().add("question-text");
+        questionImageView.setPreserveRatio(true);
+        questionImageView.setFitHeight(180);
+
+        // 4. Siapkan bagian pilihan jawaban (RadioButton)
+        optionsContainer.getStyleClass().add("options-container");
+        optionsContainer.getChildren().clear(); // Pastikan kosong sebelum diisi ulang
+        for (int i = 0; i < 4; i++) {
+            optionsContainer.getChildren().add(createStyledRadioButton());
+        }
+
+        // 5. Gabungkan teks, gambar, dan pilihan jawaban
+        questionArea.getChildren().setAll(questionText, questionImageView, optionsContainer);
+        VBox.setVgrow(optionsContainer, Priority.ALWAYS);
+
+        // 6. Siapkan tombol submit
+        submitButton.getStyleClass().add("primary-button");
+
+        // 7. Masukkan semua bagian ke dalam kartu kuis
+        quizCard.getChildren().addAll(progressBox, questionArea, submitButton);
+        VBox.setVgrow(questionArea, Priority.ALWAYS);
+
+        // 8. Tampilkan kartu kuis di layar
+        this.getChildren().add(quizCard);
     }
 
-    public void showQuizCard(boolean show) {
-        // ... (isi metode ini tetap sama) ...
-    }
-
+    /**
+     * Metode ini mengisi data pertanyaan ke komponen UI yang sudah ada.
+     */
     public void displayQuestion(Question q, boolean useAnimation) {
         if (useAnimation) {
             FadeTransition ft = new FadeTransition(Duration.millis(350), questionArea);
@@ -87,18 +122,26 @@ public class QuizView extends StackPane {
         ((RadioButton) optionsGroup.getToggles().get(2)).setText(q.getOptionC());
         ((RadioButton) optionsGroup.getToggles().get(3)).setText(q.getOptionD());
         optionsGroup.selectToggle(null);
-        // updateProgressInfo(); // Controller yang akan memanggil ini
     }
 
+    /**
+     * Memperbarui progress bar dan label soal.
+     */
     public void updateProgress(int current, int total) {
         progressLabel.setText("Soal " + (current + 1) + " dari " + total);
         progressBar.setProgress((double) (current) / total);
     }
 
+    /**
+     * Menampilkan layar hasil akhir kuis.
+     */
     public void showCompletionScreen(int finalScore, Button backToDashboardButton) {
-        this.getChildren().remove(quizCard);
+        // Hapus kartu kuis sebelum menampilkan hasil
+        if (quizCard != null) {
+            this.getChildren().remove(quizCard);
+        }
 
-        completionCard = new VBox();
+        VBox completionCard = new VBox();
         completionCard.getStyleClass().add("card");
         Label title = new Label("Quiz Selesai!");
         title.getStyleClass().add("title-text");
@@ -111,26 +154,34 @@ public class QuizView extends StackPane {
         this.getChildren().add(completionCard);
     }
 
+    /**
+     * Menampilkan atau menyembunyikan indikator loading.
+     */
     public void showLoading(boolean isLoading) {
         loadingIndicator.setVisible(isLoading);
     }
 
+    /**
+     * Menampilkan pesan error di tengah layar.
+     */
     public void showError(String message) {
         Label errorLabel = new Label(message);
         errorLabel.getStyleClass().add("subtitle-text");
         this.getChildren().add(errorLabel);
     }
 
-    // --- PERBAIKAN DI SINI ---
+    /**
+     * Membuat satu buah RadioButton dengan style yang sudah ditentukan.
+     */
     private RadioButton createStyledRadioButton() {
         RadioButton rb = new RadioButton();
         rb.setToggleGroup(optionsGroup);
         rb.getStyleClass().add("radio-button");
         rb.setMaxWidth(Double.MAX_VALUE);
-        return rb; // Baris inilah yang hilang
+        return rb;
     }
 
-    // Getters
+    // Getters untuk diakses oleh Controller
     public ToggleGroup getOptionsGroup() { return optionsGroup; }
     public Button getSubmitButton() { return submitButton; }
 }

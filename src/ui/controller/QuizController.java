@@ -72,7 +72,7 @@ public class QuizController {
     }
 
     private void startQuiz() {
-        view.buildQuizUI();
+        view.buildAndShowQuizUI();
         setupEventHandlers();
         displayQuestion(false);
     }
