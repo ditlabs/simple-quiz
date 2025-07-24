@@ -59,7 +59,7 @@ public class LoginController {
         if (user != null) {
             SessionManager.getInstance().setLoggedInUser(user);
 
-            // Tampilkan pesan sukses
+            // Logika login admin dan user
             if ("ADMIN".equalsIgnoreCase(user.getRole())) {
                 AlertHelper.showAlert(Alert.AlertType.INFORMATION, stage, "Login Berhasil", "Selamat datang, Admin " + user.getUsername() + "!");
                 // Jika admin, tampilkan dashboard admin
